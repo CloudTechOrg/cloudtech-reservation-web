@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>API Test Example</title>
+<style>
+  #result {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+  }
+</style>
+</head>
+<body>
+<button id="apiTestButton">API Test</button>
+<div id="result"></div>
+
+<script>
+  document.getElementById('apiTestButton').addEventListener('click', function() {
+    fetch('http://localhost:8080')
+      .then(function(response) {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.text();
+      })
+      .then(function(data) {
+        document.getElementById('result').textContent = 'API Response: ' + data;
+      })
+      .catch(function(error) {
+        document.getElementById('result').textContent = 'API Error: ' + error.message;
+      });
+  });
+</script>
+</body>
+</html>
