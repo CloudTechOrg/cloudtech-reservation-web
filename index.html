@@ -15,9 +15,10 @@
 <button id="apiTestButton">API Test</button>
 <div id="result"></div>
 
+<script src="config.js"></script>
 <script>
   document.getElementById('apiTestButton').addEventListener('click', function() {
-    fetch('http://localhost:8080')
+    fetch(apiConfig.baseURL)
       .then(function(response) {
         if (!response.ok) {
           throw new Error('Network response was not ok');
