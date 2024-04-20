@@ -22,7 +22,6 @@ sudo yum install -y git
 ### 3. nginxのインストール
 Webサーバとして動作させるためのNginxをインストールする
 ```shell
-sudo yum install epel-release
 sudo yum install nginx
 ```
 
@@ -36,18 +35,76 @@ sudo systemctl start nginx
 sudo systemctl enable nginx
 ```
 
+`http://[web-serber-01のIPアドレス]`をブラウザに入力することで、`Weblome to nginx!`のページが開かれることを確認する
+
 ### 4. ソースコードのインストール
 gitコマンドで、ソースコードをインストールする
 ```shell
-git clone https://github.com/CloudTechOrg/cloudtech-reservation-web.git
+cd /usr/share/nginx/html/
+sudo git clone https://github.com/CloudTechOrg/cloudtech-reservation-web.git
 ```
 
-### 5. APIの起動
+### 5. Nginxのデフォルト設定を変更
 以下のコマンドでAPIを起動する
+
+/etc/nginx/nginx.conf
+
+/home/ec2-user/cloudtech-reservation-web
+/index.html
+
+```
+    server {
+        listen       80;
+        listen       [::]:80;
+        server_name  _;
+        root         /home/ec2-user/cloudtech-reservation-web;
+
+        # Load configuration files for the default server block.
+        include /etc/nginx/default.d/*.conf;
+
+        error_page 404 /404.html;
+        location = /404.html {
+        }
+
+        error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+        }
+    }
+```
+
+sudo systemctl restart nginx
 
 ```shell
 cd cloudtech-reservation-api
 nohup go run main.go &
+```
+
+
+cd cd /usr/share/nginx/html
+
+sudo git clone https://github.com/CloudTechOrg/cloudtech-reservation-web.git
+
+sudo vi /etc/nginx/nginx.conf
+
+sudo systemctl restart nginx
+
+```
+    server {
+        listen       80;
+        listen       [::]:80;
+        server_name  _;
+        root         /usr/share/nginx/html/cloudtech-reservation-web;
+
+        # Load configuration files for the default server block.
+        include /etc/nginx/default.d/*.conf;
+
+        error_page 404 /404.html;
+        location = /404.html {
+        }
+
+        error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+        }
 ```
 
 ### 6. 再起動時に起動されるように設定
