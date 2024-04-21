@@ -45,55 +45,23 @@ sudo git clone https://github.com/CloudTechOrg/cloudtech-reservation-web.git
 ```
 
 ### 5. Nginxのデフォルト設定を変更
-以下のコマンドでAPIを起動する
+Nginxのデフォルトで表示されるhtmlページを、さきほどダウンロードしたアプリケーションの内容に変更する。
 
-/etc/nginx/nginx.conf
 
-/home/ec2-user/cloudtech-reservation-web
-/index.html
+以下のコマンドでnginxのconfigファイルを起動する
 
 ```
-    server {
-        listen       80;
-        listen       [::]:80;
-        server_name  _;
-        root         /home/ec2-user/cloudtech-reservation-web;
-
-        # Load configuration files for the default server block.
-        include /etc/nginx/default.d/*.conf;
-
-        error_page 404 /404.html;
-        location = /404.html {
-        }
-
-        error_page 500 502 503 504 /50x.html;
-        location = /50x.html {
-        }
-    }
-```
-
-sudo systemctl restart nginx
-
-```shell
-cd cloudtech-reservation-api
-nohup go run main.go &
-```
-
-
-cd cd /usr/share/nginx/html
-
-sudo git clone https://github.com/CloudTechOrg/cloudtech-reservation-web.git
-
 sudo vi /etc/nginx/nginx.conf
+```
 
-sudo systemctl restart nginx
+下記のrootに記載されているURLを、変更する
 
 ```
     server {
         listen       80;
         listen       [::]:80;
         server_name  _;
-        root         /usr/share/nginx/html/cloudtech-reservation-web;
+        root         /usr/share/nginx/html;
 
         # Load configuration files for the default server block.
         include /etc/nginx/default.d/*.conf;
@@ -107,21 +75,26 @@ sudo systemctl restart nginx
         }
 ```
 
-### 6. 再起動時に起動されるように設定
+- 変更前：`/usr/share/nginx/html;`
+- 変更後：`/usr/share/nginx/html/cloudtech-reservation-web;`
 
-ToDo
-
-## 起動方法
-起動したAPIをローカル（同じEC2内）で呼び出したい場合、下記のURLにアクセスする
-
+以下のコマンドでnginxを再起動する
 ```
-http://localhost:8080
+sudo systemctl restart nginx
 ```
 
-外部から呼び出したい場合、以下のURLにアクセスする（セキュリティグループなどのアクセス権限が許可されている前提）
+## APIの設定
+WebアプリケーションからAPIを呼び出すための設定を行う。設定はconfig.jsにて定義されているので、それを変更する。
+
+以下のコマンドで、config.jsを開く
+```shell
+sudo vi /usr/share/nginx/html/cloudtech-reservation-web/config.js
+```
+
+`localhost`となっている部分を、APIサーバのパブリックIPアドレスに変更
 
 ```
-http://[IPアドレス]:8080
+const apiConfig = {
+    baseURL: 'http://localhost:8080'
+  };
 ```
-
-# データベース接続
