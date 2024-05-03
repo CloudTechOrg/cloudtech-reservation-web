@@ -1,100 +1,67 @@
 # WEBサーバの設定
 ## 概要
-EC2インスタンスに対してWEBサーバとして起動させる設定を行います。
+このドキュメントでは、ハンズオン課題の「Week2：基本サービス」で必要とされるWebサーバの設定方法について説明します。
 
-## 前提
-- EC2インスタンスssh接続などでログインしていること
+## 前提条件
+- Webサーバとして使用するEC2インスタンスにSSHでログイン済みであること。
 
 ## 手順
 
-### 1. yumのアップデート
-各種インストールを行うために使用するyumパッケージを最新化する
+### 1. システムの更新
+システムを最新の状態に保つため、以下のコマンドでyumパッケージを更新します。
 ```shell
 sudo yum update -y
 ```
 
 ### 2. Gitのインストール
-ソースコードをEC2インスタンスにダウンロードするため、gitをインストールする
+EC2インスタンスにソースコードをダウンロードするため、Gitをインストールします。
 ```shell
 sudo yum install -y git
 ```
 
 ### 3. nginxのインストール
-Webサーバとして動作させるためのNginxをインストールする
+WebサーバとしてNginxをインストールし、起動します。
 ```shell
-sudo yum install nginx
-```
-
-インストール後、下記コマンドでNginxを起動する
-```shell
+sudo yum install -y nginx
 sudo systemctl start nginx
-```
-
-再起動時に起動されるように設定する
-```
 sudo systemctl enable nginx
 ```
 
-`http://[web-serber-01のIPアドレス]`をブラウザに入力することで、`Weblome to nginx!`のページが開かれることを確認する
+### 4. 動作確認
+ブラウザで `http://[web-serverのパブリックIPアドレス]` を開き、`Welcome to nginx!` のページが表示されることを確認します。
 
-### 4. ソースコードのインストール
-gitコマンドで、ソースコードをインストールする
+### 5. ソースコードの配置
+Gitを使用してソースコードを以下のディレクトリにクローンします。
 ```shell
 cd /usr/share/nginx/html/
 sudo git clone https://github.com/CloudTechOrg/cloudtech-reservation-web.git
 ```
 
-### 5. Nginxのデフォルト設定を変更
-Nginxのデフォルトで表示されるhtmlページを、さきほどダウンロードしたアプリケーションの内容に変更する。
-
-
-以下のコマンドでnginxのconfigファイルを起動する
-
-```
+### 6. Nginxのデフォルト設定の変更
+Nginxの設定ファイルを編集し、表示するWebページのディレクトリを変更します。
+```shell
 sudo vi /etc/nginx/nginx.conf
 ```
+- 変更前の設定：`root /usr/share/nginx/html;`
+- 変更後の設定：`root /usr/share/nginx/html/cloudtech-reservation-web;`
 
-下記のrootに記載されているURLを、変更する
-
-```
-    server {
-        listen       80;
-        listen       [::]:80;
-        server_name  _;
-        root         /usr/share/nginx/html;
-
-        # Load configuration files for the default server block.
-        include /etc/nginx/default.d/*.conf;
-
-        error_page 404 /404.html;
-        location = /404.html {
-        }
-
-        error_page 500 502 503 504 /50x.html;
-        location = /50x.html {
-        }
-```
-
-- 変更前：`/usr/share/nginx/html;`
-- 変更後：`/usr/share/nginx/html/cloudtech-reservation-web;`
-
-以下のコマンドでnginxを再起動する
-```
+設定を変更した後、Nginxを再起動して変更を適用します。
+```shell
 sudo systemctl restart nginx
 ```
 
-## APIの設定
-WebアプリケーションからAPIを呼び出すための設定を行う。設定はconfig.jsにて定義されているので、それを変更する。
-
-以下のコマンドで、config.jsを開く
+### 7. APIの設定
+WebアプリケーションからAPIを呼び出すための設定ファイル `config.js` を編集します。
 ```shell
 sudo vi /usr/share/nginx/html/cloudtech-reservation-web/config.js
 ```
-
-`localhost`となっている部分を、APIサーバのパブリックIPアドレスに変更
-
-```
+APIサーバのパブリックIPアドレスに設定値を変更します。
+```javascript
 const apiConfig = {
-    baseURL: 'http://localhost'
-  };
+  baseURL: 'http://[API-serverのパブリックIPアドレス]'
+};
 ```
+
+### 8. 最終確認
+以下のURLでWebアプリケーションが正しく起動していることを確認します。
+`http://[web-serverのパブリックIPアドレス]`
