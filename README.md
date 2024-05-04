@@ -1,6 +1,6 @@
-# Week1：WEBサーバの設定
+# Week２：WEBサーバの設定
 ## 概要
-このドキュメントでは、ハンズオン課題の「Week2：基本サービス」で必要とされるWebサーバの設定方法について説明します。
+このドキュメントでは、ハンズオン課題の`Week2：基本サービス`で必要とされるWebサーバの設定方法について説明します。
 
 ## 前提条件
 - Webサーバとして使用するEC2インスタンスにSSHでログイン済みであること。
@@ -50,12 +50,12 @@ sudo vi /etc/nginx/nginx.conf
 sudo systemctl restart nginx
 ```
 
-### 7. APIの設定
+### 7. API接続先の設定
 WebアプリケーションからAPIを呼び出すための設定ファイル `config.js` を編集します。
 ```shell
 sudo vi /usr/share/nginx/html/cloudtech-reservation-web/config.js
 ```
-APIサーバのパブリックIPアドレスに設定値を変更します。
+baseURLの設定を、APIサーバのパブリックIPアドレスに設定値を変更します。
 ```javascript
 const apiConfig = {
   baseURL: 'http://[API-serverのパブリックIPアドレス]'
@@ -65,3 +65,28 @@ const apiConfig = {
 ### 8. 最終確認
 以下のURLでWebアプリケーションが正しく起動していることを確認します。
 `http://[web-serverのパブリックIPアドレス]`
+
+# Week4：ネットワーク
+
+## 概要
+このドキュメントでは、ハンズオン課題の`Week4：ネットワーク`で必要とされる、WebサーバからAPIサーバに向けての接続設定の変更方法を説明します。
+
+## 前提条件
+- Webサーバとして使用するEC2インスタンスにSSHでログイン済みであること。
+
+## 手順
+### 7. API接続先の設定
+WebアプリケーションからAPIを呼び出すための設定ファイル `config.js` を編集します。
+```shell
+sudo vi /usr/share/nginx/html/cloudtech-reservation-web/config.js
+```
+baseURLの設定を、ALBのDNS名に変更します。
+```javascript
+const apiConfig = {
+  baseURL: 'http://[ALBのDNS名]'
+};
+```
+
+## 動作確認
+以下のURLでWebアプリケーションが正しく起動していることを確認します。
+`http://[ALBのDNS名]`
